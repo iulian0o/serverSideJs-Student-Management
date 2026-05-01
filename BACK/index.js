@@ -1,7 +1,10 @@
 import express from "express";
 import cors from "cors";
+import { connectToMongoDB } from "./config/db";
 
 // TODO 1: Import connectToMongoDB from ./config/db.js
+connectToMongoDB();
+
 // TODO 2: Import studentRouter from ./routes/studentsRoute.js
 
 const app = express();

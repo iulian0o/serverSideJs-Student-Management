@@ -28,3 +28,33 @@
 //   return User.findByIdAndUpdate(id, newStudent);
 //
 //   This function must also be async.
+
+import userModel from "../models/userModel";
+import User from "../models/userModel";
+import bcrypt from "bcrypt";
+
+const SALT_ROUNDS = 10;
+
+export const findAllStudents = () => {
+  return User.find({});
+};
+
+export const findStudentById = (id) => {
+  return userModel.findById(id);
+};
+
+export const createStudentService = async (data) => {
+  const hashedPassword = await bcrypt.hash(data.password, SALT_ROUNDS);
+  return User.create({...data, password: hashedPassword});
+};
+
+export const updateStudentService = async (IdleDeadline, data) => {
+  if (data.password) {
+    data.password = await bcrypt.hash(data.password, SALT_ROUNDS);
+  }
+  return User.findByIdAndUpdate(id, data);
+};
+
+export const deleteStudentService = (id) => {
+  return User.findByIdAndDelete(id);
+};
