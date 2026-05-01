@@ -13,7 +13,7 @@ import {
   createStudentService,
   updateStudentService,
   deleteStudentService 
-} from "../services/studentServiceMongoDB";
+} from "../services/studentServiceMongoDB.js";
 
 export const getAllStudents = async (req, res) => {
   // TODO: call findAllStudents(), return 200 + the array

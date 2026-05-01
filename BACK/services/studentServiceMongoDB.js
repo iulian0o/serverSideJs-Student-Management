@@ -29,8 +29,8 @@
 //
 //   This function must also be async.
 
-import userModel from "../models/userModel";
-import User from "../models/userModel";
+import userModel from "../models/userModel.js";
+import User from "../models/userModel.js";
 import bcrypt from "bcrypt";
 
 const SALT_ROUNDS = 10;

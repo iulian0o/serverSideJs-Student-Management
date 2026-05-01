@@ -10,7 +10,7 @@ import {
 // TODO 1: Import getAllStudents, getStudentById, createStudent, updateStudent, deleteStudent
 //         from ../controllers/studentsController.js
 
-const studentRouter = express.Router();
+export const studentRouter = express.Router();
 
 // TODO 2: Wire up the routes:
 

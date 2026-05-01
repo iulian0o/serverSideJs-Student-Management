@@ -1,7 +1,7 @@
 import express from "express";
 import cors from "cors";
-import { connectToMongoDB } from "./config/db";
-import { studentRouter} from "./routes/studentsRoute"
+import {connectToMongoDB} from "./config/db.js";
+import {studentRouter} from "./routes/studentsRoute.js"
 
 // TODO 1: Import connectToMongoDB from ./config/db.js
 
