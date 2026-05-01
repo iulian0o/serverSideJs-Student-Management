@@ -48,7 +48,7 @@ export const createStudentService = async (data) => {
   return User.create({...data, password: hashedPassword});
 };
 
-export const updateStudentService = async (IdleDeadline, data) => {
+export const updateStudentService = async (id, data) => {
   if (data.password) {
     data.password = await bcrypt.hash(data.password, SALT_ROUNDS);
   }

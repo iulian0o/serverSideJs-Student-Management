@@ -22,7 +22,7 @@ export const getAllStudents = async (req, res) => {
   try {
     const students = await findAllStudents();
 
-    req.status(200).json(students);
+    res.status(200).json(students);
   } catch (error) {
     res.status(404).json({message: error.message});
   }
@@ -69,7 +69,7 @@ export const updateStudent = async (req, res) => {
 
     res.status(200).json(updatedStudent);
   } catch (error) {
-    res;status(500).json({message: error.message});
+    res.status(500).json({message: error.message});
   }
 };
 

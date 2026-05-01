@@ -24,9 +24,9 @@ studentRouter.get("/:id", getStudentById);
 studentRouter.post("/", createStudent);
 
 //   PUT    /:id     → updateStudent
-studentRouter.put("/", createStudent);
+studentRouter.put("/:id", updateStudent);
 
 //   DELETE /:id     → deleteStudent
-studentRouter.delete("/", deleteStudent);
+studentRouter.delete("/:id", deleteStudent);
 
 export default studentRouter;
