@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Students</title>
+		<link rel="stylesheet" href="./style.css" />
+		<link rel="shortcut icon" href="./favicon.svg" type="image/x-icon" />
+		<script defer src="./students.js"></script>
+	</head>
+	<body>
+		<div class="header">
+			<div>
+				<h1>Students</h1>
+				<h2>EPITA — Computer Science</h2>
+			</div>
+			<button id="logout-btn" class="btn-secondary">Log Out</button>
+		</div>
+
+		<section>
+			<div id="student-list"></div>
+		</section>
+
+		<!-- Student detail modal -->
+		<div id="modal-overlay" class="modal-overlay" hidden>
+			<div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-name">
+				<button class="modal-close" id="modal-close" aria-label="Close">&times;</button>
+				<div class="modal-avatar" id="modal-avatar"></div>
+				<h2 class="modal-name" id="modal-name"></h2>
+				<p class="modal-major" id="modal-major"></p>
+				<p class="modal-email" id="modal-email"></p>
+				<span class="modal-gpa" id="modal-gpa"></span>
+			</div>
+		</div>
+	</body>
+</html>

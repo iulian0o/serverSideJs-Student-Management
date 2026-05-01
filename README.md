@@ -1,71 +1,194 @@
-# Exercise 01 — File System & JSON
+# Exercise — Express REST API with MongoDB
 
 ## Goal
 
-Read a JSON file, transform its data, and write the result to a Markdown file — all using Node.js built-in modules, no `npm install` needed.
+Build a REST API using Express.js that exposes student data through a clean 3-layer architecture: **routes → controllers → services**, backed by a **MongoDB** database via Mongoose.
 
 ## What you will build
 
-A script that reads `students.json` and generates a `student_report.md` file.
+An HTTP server that responds to requests on `/api/students`, performing full CRUD operations against a MongoDB collection through three separated layers.
 
 ## Run it
 
 ```bash
-node index.js
+cd BACK
+npm install
+npm run dev
 ```
 
-If it works, you should see a success message in the terminal and a new `student_report.md` file appear next to `index.js`.
+Create a `.env` file inside `BACK/` with your MongoDB connection string:
 
-## Modules you will need
+```
+MONGO_URI=mongodb+srv://<user>:<password>@cluster.mongodb.net/<dbname>
+```
 
-| Module | What it does                            |
-| ------ | --------------------------------------- |
-| `fs`   | Read and write files on your filesystem |
-| `path` | Build file paths that work on any OS    |
+The server starts on `http://localhost:3000`. Use Postman or the provided frontend to test your endpoints.
 
-Both are built into Node.js — just `require` them, no install needed.
+> `npm run dev` uses **nodemon** — it restarts the server automatically whenever you save a file.
 
-## Key functions
+## Project structure
 
-- `fs.readFileSync(filePath, 'utf-8')` — reads a file and returns its contents as a string
-- `fs.writeFileSync(filePath, content, 'utf-8')` — writes a string to a file (creates it if it doesn't exist)
-- `JSON.parse(string)` — converts a JSON string into a JavaScript object
-- `path.join(__dirname, 'filename')` — builds a safe absolute path relative to the current script
+```
+BACK/
+├── index.js                          ← entry point: Express setup, DB connection, router mount
+├── config/
+│   └── db.js                         ← connects to MongoDB using Mongoose
+├── models/
+│   └── userModel.js                  ← Mongoose schema and model (already provided)
+├── services/
+│   └── studentServiceMongoDB.js      ← database logic using the User model
+├── controllers/
+│   └── studentsController.js         ← handles req/res, delegates to services
+├── routes/
+│   └── studentsRoute.js              ← maps URL paths to controller functions
+```
+
+## The 3 layers
+
+| Layer | File | Responsibility |
+|---|---|---|
+| **Route** | `routes/studentsRoute.js` | Declares endpoints and points each to a controller function |
+| **Controller** | `controllers/studentsController.js` | Receives `req`/`res`, awaits the service, returns JSON with the right status code |
+| **Service** | `services/studentServiceMongoDB.js` | Talks to MongoDB through the Mongoose model |
+
+## The User model
+
+`models/userModel.js` is already written for you. It defines this schema:
+
+```js
+{
+  name:     { type: String, required: true },
+  email:    { type: String, required: true, unique: true },
+  gpa:      { type: Number, required: true },
+  password: { type: String, required: true },
+}
+```
+
+Mongoose adds `_id`, `createdAt`, and `updatedAt` automatically.
+
+## Endpoints to implement
+
+| Method | Path | Description | Success status |
+|---|---|---|---|
+| `GET` | `/api/students` | Return all students | `200` |
+| `GET` | `/api/students/:id` | Return one student by id | `200` |
+| `POST` | `/api/students` | Create a new student | `201` |
+| `PUT` | `/api/students/:id` | Update a student | `200` |
+| `DELETE` | `/api/students/:id` | Delete a student | `200` |
 
 ## Steps
 
-1. Require the `fs` and `path` modules
-2. Read `students.json` using `fs.readFileSync`
-3. Parse the JSON string into a JavaScript array using `JSON.parse`
-4. Build a Markdown string by looping over the students array
-5. Write the result to `student_report.md` using `fs.writeFileSync`
+Work through the files in this order — each one depends on the previous:
 
-## Expected output
+### Step 1 — `config/db.js`
+- Read `MONGO_URI` from `process.env`
+- Write an `async` function `connectToMongoDB` that calls `mongoose.connect()`, logs success, and calls `process.exit(1)` on failure
+- Export it
 
-The generated `student_report.md` should look like this:
+### Step 2 — `services/studentServiceMongoDB.js`
+- Import the `User` model and `bcrypt`
+- Export these five functions:
 
-```markdown
-# Student Report
+| Function | Mongoose method | async? |
+|---|---|---|
+| `findAllStudents()` | `User.find({})` | no |
+| `findStudentById(id)` | `User.findById(id)` | no |
+| `createStudentService(data)` | `User.create(data)` | **yes** |
+| `updateStudentService(id, data)` | `User.findByIdAndUpdate(id, data)` | **yes** |
+| `deleteStudentService(id)` | `User.findByIdAndDelete(id)` | no |
 
-Generated on: 20/03/2026
+#### Password hashing
 
-## Summary
+Passwords must **never** be stored as plain text. Use `bcrypt` to hash before persisting:
 
-Total Students: 3
+```js
+const SALT_ROUNDS = 10; // controls how expensive the hash computation is
 
-## Student Details
+// in createStudentService:
+const hashedPassword = await bcrypt.hash(data.password, SALT_ROUNDS);
+return User.create({ ...data, password: hashedPassword });
+```
 
-### Alice Martin
+For updates, only hash if the payload actually contains a new password — the user might be updating their name or email without changing their password:
 
-- **Email:** alice.martin@epita.fr
-- **Major:** Computer Science
-- **GPA:** 3.8
-- **ID:** 1
-  ...
+```js
+// in updateStudentService:
+if (data.password) {
+  data.password = await bcrypt.hash(data.password, SALT_ROUNDS);
+}
+return User.findByIdAndUpdate(id, data);
+```
+
+Both functions must be `async` because `bcrypt.hash()` returns a Promise.
+
+### Step 3 — `controllers/studentsController.js`
+- Import the service functions
+- Write five `async` controllers: `getAllStudents`, `getStudentById`, `createStudent`, `updateStudent`, `deleteStudent`
+- Each one must:
+  - `await` the service call
+  - respond with the correct status code and JSON
+  - catch errors and respond with an error status + message
+
+### Step 4 — `routes/studentsRoute.js`
+- Import all five controllers
+- Create an Express `Router` and wire up the five routes
+- Export the router
+
+### Step 5 — `index.js`
+- Import `connectToMongoDB` and call it before starting the server
+- Mount the student router at `/api/students`
+
+## Key concepts
+
+### async/await and Mongoose
+
+Mongoose methods (`.find()`, `.findById()`, etc.) return **Promises**. Always `await` them in your controllers, and wrap in `try/catch`:
+
+```js
+export const getAllStudents = async (req, res) => {
+  try {
+    const students = await findAllStudents();
+    res.status(200).json(students);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+```
+
+### HTTP methods and CRUD
+
+| HTTP method | CRUD operation | Typical use |
+|---|---|---|
+| `GET` | Read | Retrieve data |
+| `POST` | Create | Send new data |
+| `PUT` | Update | Replace existing data |
+| `DELETE` | Delete | Remove data |
+
+### Status codes
+
+| Code | Meaning |
+|---|---|
+| `200` | OK — request succeeded |
+| `201` | Created — new resource was created |
+| `404` | Not Found — resource does not exist |
+| `500` | Internal Server Error — something broke on the server |
+
+## ES6 modules
+
+`package.json` has `"type": "module"` — use `import`/`export` syntax throughout:
+
+```js
+import express from "express";
+import { findAllStudents } from "../services/studentServiceMongoDB.js";
+
+export const getAllStudents = async (req, res) => { ... };
+export default studentRouter;
 ```
 
 ## Hints
 
-- `__dirname` is a Node.js variable that always points to the folder where your script lives — useful for building reliable file paths
-- `Array.forEach()` lets you loop over each student and append their info to your Markdown string
-- Template literals (backticks) make it easy to embed variables inside strings: `` `Hello ${name}` ``
+- `req.params.id` gives you the `:id` from the URL — pass it directly to Mongoose, **no `parseInt()`** (MongoDB uses string `_id`s)
+- `req.body` contains the JSON payload — make sure `express.json()` middleware is active in `index.js`
+- Controllers should never contain database logic — keep that in the service layer
+- Use `res.status(code).json(data)` to set the status code and send JSON in one call
+- Don't forget to add your `.env` file — without `MONGO_URI` the server will exit immediately
