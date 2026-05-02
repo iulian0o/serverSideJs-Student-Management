@@ -19,7 +19,7 @@ connectToMongoDB();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors());
-app.use(express.static('public'))
+app.use(express.static('../FRONT'))
 
 // TODO 4: Mount studentRouter at "/api/students"
 // Hint: app.use("/api/students", studentRouter)

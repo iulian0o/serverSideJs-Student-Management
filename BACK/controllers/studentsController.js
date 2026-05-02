@@ -95,6 +95,13 @@ export const signup = async (req, res) => {
   try {
     const {name, email, password, gpa, major} = req.body;
     const newStudent = await createStudentService({name, email, password, gpa, major});
+
+    const token = jwt.sign(
+      { id: newStudent._id, email: newStudent.email },
+      process.env.JWT_SECRET,
+      { expiresIn: "24h" }
+    );
+    
     res.status(201).json({message: "Acoount created succesfully", studnt: newStudent});
   } catch (error) {
     res.status(500).json({message: error.message});
