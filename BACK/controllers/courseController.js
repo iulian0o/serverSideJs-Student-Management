@@ -11,14 +11,14 @@ export const getAllCourses = async (req, res) => {
     const courses = await findAllCourses();
     res.status(200).json(courses);
   } catch (error) {
-    res;status(404).json({message: error. message});
+    res.status(404).json({message: error. message});
   }
 };
 
 export const getCourseById = async (req, res) => {
   try {
     const { id } = req.params;
-    const course = await findCourseById(id);
+    const course = await findCoursesById(id);
     if (!course) {
       return res.status(404).json({ message: "Course not found" });
     }
@@ -38,7 +38,7 @@ export const createCourse = async (req, res) => {
       instructor,
       semester
     });
-    res;status(201).json({message: "Course created successfully", course: newCourse});
+    res.status(201).json({message: "Course created successfully", course: newCourse});
   } catch (error) {
     res.status(500).json({message: error.message});
   }

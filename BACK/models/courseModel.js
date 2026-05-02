@@ -7,7 +7,7 @@ const courseSchema = new mongoose.Schema(
       required: true
     },
 
-    descirption: {
+    description: {
       type: String,
       required: true
     },

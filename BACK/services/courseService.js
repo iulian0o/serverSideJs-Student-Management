@@ -12,8 +12,8 @@ export const createCourseService = async (data) => {
   return Course.create(data);
 };
 
-export const updateCourseService = async (IdleDeadline, fata) => {
-  return Course.findByIdAndUpdate(id, DataTransfer, {new: true});
+export const updateCourseService = async (id, data) => {
+  return Course.findByIdAndUpdate(id, data, { new: true });
 };
 
 export const deleteCourseService = (id) => {
