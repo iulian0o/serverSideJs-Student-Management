@@ -1,7 +1,8 @@
 import express from "express";
 import cors from "cors";
 import {connectToMongoDB} from "./config/db.js";
-import {studentRouter} from "./routes/studentsRoute.js"
+import {studentRouter} from "./routes/studentsRoute.js";
+import courseRouter from "./routes/courseRoute.js";
 
 // TODO 1: Import connectToMongoDB from ./config/db.js
 
@@ -24,6 +25,7 @@ app.use(express.static('public'))
 // Hint: app.use("/api/students", studentRouter)
 
 app.use("/api/students", studentRouter);
+app.use("/api/courses", courseRouter); 
 
 app.get("/", (req, res) => {
   res.send("Server is running ...");

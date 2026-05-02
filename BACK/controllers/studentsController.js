@@ -7,12 +7,15 @@
 //   - respond with the correct status code and JSON
 //   - catch errors and respond with an error status code + message
 
+import jwt from "jsonwebtoken";
+import "dotenv/config";
 import { 
   findAllStudents,
   findStudentById,
   createStudentService,
   updateStudentService,
-  deleteStudentService 
+  deleteStudentService,
+  loginStudentService
 } from "../services/studentServiceMongoDB.js";
 
 export const getAllStudents = async (req, res) => {
@@ -85,5 +88,32 @@ export const deleteStudent = async (req, res) => {
     res.status(200).json({message: "Student deledte successfully"});
   } catch (error) {
     res.status(500).json({message: error.message});
+  }
+};
+
+export const signup = async (req, res) => {
+  try {
+    const {name, email, password, gpa, major} = req.body;
+    const newStudent = await createStudentService({name, email, password, gpa, major});
+    res.status(201).json({message: "Acoount created succesfully", studnt: newStudent});
+  } catch (error) {
+    res.status(500).json({message: error.message});
+  }
+};
+
+export const login = async (req, res) => {
+  try {
+    const {email, password} = req.body;
+    const user = await loginStudentService(email, password);
+
+    const token = jwt.sign(
+      {id: user._id, email: user.email},
+      process.env.JWT_SECRET,
+      {expiresIn: "24h"}
+    );
+
+    res.status(200).json({token});
+  } catch (error) {
+    res.status(401).json({message: error.message});
   }
 };
