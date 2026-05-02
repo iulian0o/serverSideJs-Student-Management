@@ -106,7 +106,7 @@ export const login = async (req, res) => {
     const {email, password} = req.body;
     const user = await loginStudentService(email, password);
 
-    const otken = jwt.sign(
+    const token = jwt.sign(
       {id: user._id, email: user.email},
       process.env.JWT_SECRET,
       {expiresIn: "24h"}
