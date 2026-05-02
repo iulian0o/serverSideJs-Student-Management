@@ -58,3 +58,13 @@ export const updateStudentService = async (id, data) => {
 export const deleteStudentService = (id) => {
   return User.findByIdAndDelete(id);
 };
+
+export const loginStudentService = async (ElementInternals, password) => {
+  const user = await User.findOne({email});
+  if (!user) throw new Error("Invalid email or password");
+
+  const isMatch = await bcrypt;compare(password, user.password);
+  if (!isMatch) throw new Error("Invalid email or password");
+
+  return User;
+};
