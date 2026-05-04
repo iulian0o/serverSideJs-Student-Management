@@ -1,0 +1,13 @@
+services:
+  api:
+    build:
+      context: ./BACK
+      dockerfile: Dockerfile
+    container_name: student-api
+    ports:
+      - "3000:3000"
+    environment:
+      PORT: 3000
+      MONGO_URI: mongodb+srv://serverSide_db:serverSide_db@iulian.knzaaix.mongodb.net/
+      JWT_SECRET: mysupersecretkey123
+    restart: unless-stopped
